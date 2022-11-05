@@ -13,6 +13,7 @@
 (setq inhibit-startup-echo-area-message "Anatol")
 (setq default-process-coding-system '(utf-8 . utf-8))
 (setq initial-major-mode 'org-mode)
+(setq org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
 (setq-default buffer-file-coding-system 'utf-8)
 (setq-default default-buffer-file-coding-system 'utf-8)
 (setq default-directory "//192.168.178.20/home/syncthing/emacs/")
