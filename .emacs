@@ -1,9 +1,16 @@
 ;; -*- lexical-binding: t; -*-
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
+(require 'package)
+(add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (defun browse-file-directory ()
   (interactive)
   (browse-url-of-file (expand-file-name default-directory)))
+
 (setq inhibit-startup-screen t)
 (setq ring-bell-function 'ignore)
 (setq auto-save-default nil)
@@ -13,10 +20,9 @@
 (setq inhibit-startup-echo-area-message "Anatol")
 (setq default-process-coding-system '(utf-8 . utf-8))
 (setq initial-major-mode 'org-mode)
-(setq org-blank-before-new-entry '((heading . auto) (plain-list-item . nil)))
 (setq-default buffer-file-coding-system 'utf-8)
 (setq-default default-buffer-file-coding-system 'utf-8)
-(setq default-directory "//192.168.178.20/home/syncthing/emacs/")
+(setq default-directory "~/Dropbox/emacs/")
 (set-buffer-file-coding-system 'utf-8)
 (set-language-environment "utf-8")
 (set-default-coding-systems 'utf-8)
@@ -69,6 +75,22 @@
   ("C-x r l" . counsel-bookmark)
   ("C-h C-s" . swiper))
 
+(use-package company
+  :ensure t
+  :delight
+  :diminish
+  :bind
+  (:map company-active-map)
+  ("C-n" . 'company-select-next)
+  ("C-p" . 'company-select-previous)
+  :config
+  (setq company-begin-commands '(self-insert-command)
+	company-idle-delay 0
+	company-minimum-prefix-length 1
+	company-require-match 'never
+	company-tooltip-align-annotations 't)
+  (global-company-mode t))
+
 (use-package deft
   :ensure t
   :bind 
@@ -78,12 +100,21 @@
   (setq deft-default-extension "org")
   (setq deft-recursive t)
   (setq deft-text-mode 'org-mode)
-  (setq deft-directory "//192.168.178.20/home/syncthing/emacs/journal")
+  (setq deft-directory "~/Dropbox/emacs/journal")
   (setq deft-use-filter-string-for-filename t)
   (setq deft-auto-save-interval 0)
   (setq deft-use-filename-as-title 't)
   (setq deft-new-file-format "%Y-%m-%d")
   (setq deft-current-sort-method 'mtime))
+
+(use-package ivy
+  :ensure t
+  :config
+  (setq ivy-on-del-error-function 'ignore)
+  (setq ivy-use-virtual-buffers nil) ; When t add recently used buffers and/or bookmarks
+  (setq ivy-height 12)
+  (add-to-list 'ivy-re-builders-alist'(t . ivy--regex-ignore-order)) ; ignors order of input: "for example" will match "example test for".
+  (ivy-mode +1))
 
 (use-package org
   :init
@@ -101,7 +132,7 @@
   (setq org-default-priority ?D)
   (setq org-startup-indented t)
   (setq org-indent-indentation-per-level 2)
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "WHIP" "|" "DONE(d)" "KILL(k@)")))
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "WHIP" "|" "DONE(d)" "KILL(k)")))
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+")))
   (setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (setq org-refile-use-outline-path 'file)
@@ -142,13 +173,23 @@
   ("C-c s" . org-journal-search)
   :custom
   (org-journal-file-type 'daily)
-  (org-journal-dir "//192.168.178.20/home/syncthing/emacs/journal")
+  (org-journal-dir "~/Dropbox/emacs/journal")
   (org-journal-date-format "%Y-%m-%d %A W:%V")
   (org-journal-file-format "%Y-%m-%d.org")
   :config
   (setq org-journal-hide-entries-p 'nil)
   (setq org-journal-find-file 'find-file))
 
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "~/Dropbox/emacs/roam")
+  :config
+  (setq org-roam-completion-everywhere t)
+  (org-roam-setup)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+	 ("C-c n f" . org-roam-node-find)
+	 ("C-c n i" . org-roam-node-insert)))
 
 (use-package zenburn-theme
   :ensure zenburn-theme
@@ -164,4 +205,5 @@
    `(org-level-1 ((t (:foreground "#DFAF8F" :weight semi-bold :height 1.0))))
    `(org-document-title ((t (:height 1.0))))
    (set-face-attribute 'show-paren-match nil :weight 'normal)
-   ))
+   )
+)
